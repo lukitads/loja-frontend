@@ -1,11 +1,8 @@
 <?php
 
 use \Hcode\PageAdmin;
-use \Hcode\Model\User;
 
 $app->get('/admin', function() {
-
-	User::verifyLogin();
     
 	$page = new PageAdmin();
 
@@ -25,16 +22,29 @@ $app->get('/admin/login', function() {
 });
 
 $app->post('/admin/login', function(){
-
-	User::login($_POST["login"], $_POST["password"]);
+	$postdata = http_build_query(
+		array(
+			'var1' => 'some content',
+			'var2' => 'doh'
+		)
+	);
 	
-	echo 'Olá Mundo!';
-	exit;
+	$opts = array('http' =>
+		array(
+			'method'  => 'POST',
+			'header'  => 'Content-type: application/x-www-form-urlencoded',
+			'content' => $postdata
+		)
+	);
+	
+	$context = stream_context_create($opts);
+	
+	$result = file_get_contents('http://localhost:8000/usuario/api/login', false, $context);
+	
+	echo(json_encode($result));
 });
 
 $app->get('/admin/logout', function(){
-	User::logout();
-
 	header("Location: /home/admin/login");
 	exit;
 });
