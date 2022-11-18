@@ -1,6 +1,7 @@
 <?php
 
 use \Hcode\PageAdmin;
+use Hcode\Requisicao;
 
 $app->get('/admin', function() {
     
@@ -22,25 +23,17 @@ $app->get('/admin/login', function() {
 });
 
 $app->post('/admin/login', function(){
-	$postdata = http_build_query(
-		array(
-			'var1' => 'some content',
-			'var2' => 'doh'
-		)
-	);
 	
-	$opts = array('http' =>
-		array(
-			'method'  => 'POST',
-			'header'  => 'Content-type: application/x-www-form-urlencoded',
-			'content' => $postdata
-		)
-	);
-	
-	$context = stream_context_create($opts);
-	
-	$result = file_get_contents('http://localhost:8000/usuario/api/login', false, $context);
-	
+	$payload = [
+		'login' => $_POST['login'],
+		'password' => $_POST['password']
+	];
+
+	$url = 'http://localhost:8000/usuario/api/login';
+
+	$requisicao = new Requisicao($payload, $url);
+	$result = $requisicao->post();
+
 	echo(json_encode($result));
 });
 
